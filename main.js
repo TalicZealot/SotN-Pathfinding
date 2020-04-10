@@ -214,7 +214,6 @@ resetButton.addEventListener('mousedown', e => {
 SoulOfBat.addEventListener('mousedown', e => {
     toggleRelic(SoulOfBat);
     if (unlocks.includes('B')) {
-        console.log('dd');
         unlocks = unlocks.replace('B', '');
     } else {
         unlocks += 'B';
@@ -270,10 +269,10 @@ FormOfMist.addEventListener('mousedown', e => {
 });
 PowerOfMist.addEventListener('mousedown', e => {
     toggleRelic(PowerOfMist);
-    if (unlocks.includes("p")) {
-        unlocks = unlocks.replace('p', '');
+    if (unlocks.includes("P")) {
+        unlocks = unlocks.replace('P', '');
     } else {
-        unlocks += 'p';
+        unlocks += 'P';
     }
 });
 

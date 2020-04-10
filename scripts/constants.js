@@ -65,15 +65,18 @@
         { description: "RevMines Switch", x: 29, y: 1, dest: { x: 28, y: 1 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
         {
             description: "Caverns Shoot needs flight to go up", x: 37, y: 70, dest: { x: 37, y: 69 }, gapDistance: 1,
-            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SKILL_OF_WOLF + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
+            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
+            [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
         },
         {
             description: "Clock Tower Upper", x: 51, y: 54, dest: { x: 50, y: 54 }, gapDistance: 1,
-            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SKILL_OF_WOLF + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
+            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
+            [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
         },
         {
             description: "Entrance Marble Shortcut needs flight", x: 17, y: 78, dest: { x: 18, y: 78 }, gapDistance: 1,
-            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SKILL_OF_WOLF + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
+            locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
+            [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
         },
         // Warp rooms
         { description: "Entrance warp to Mine", x: 13, y: 80, dest: { x: 33, y: 86 }, gapDistance: 5 },
