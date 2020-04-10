@@ -17,6 +17,11 @@
     const MAP_ROOMS = constants.MAP_ROOMS;
     const ROOMS = constants.ROOMS;
 
+    function isSubset(firstSet, secondSet) {
+        return Array.from(firstSet).reduce(function (allPresent, element) {
+            return allPresent && secondSet.has(element);
+        }, true);
+    }
     function drawPath(path, map) {
         let pathMap = [];
         for (let i = 0; i < map.length; i++) {
@@ -242,7 +247,7 @@
             currentRoot.connections.forEach(connection => {
                 if (connection.locks) {
                     for (let i = 0; i < connection.locks.length; i++) {
-                        if (unlocks.includes(connection.locks[i])) {
+                        if (isSubset(new Set(connection.locks[i].toString()), new Set(unlocks.toString()))) {
                             let node = {
                                 x: connection.x,
                                 y: connection.y

@@ -162,7 +162,7 @@ function drawPath(data) {
         x: 0,
         y: 0,
         data: data,
-        stroke: 'green',
+        stroke: '#2d14ae',
         strokeWidth: 7,
     });
 
