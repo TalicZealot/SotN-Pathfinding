@@ -19,6 +19,15 @@ var prevEndX = document.getElementById('prevEndX');
 var prevEndY = document.getElementById('prevEndY');
 var prevDistanceDisplay = document.getElementById('prevDistance');
 
+var SoulOfBat = document.getElementById('SoulOfBat');
+var JewelOfOpen = document.getElementById('JewelOfOpen');
+var DemonCard = document.getElementById('DemonCard');
+var GravityBoots = document.getElementById('GravityBoots');
+var LeapStone = document.getElementById('LeapStone');
+var SoulOfWolf = document.getElementById('SoulOfWolf');
+var FormOfMist = document.getElementById('FormOfMist');
+var PowerOfMist = document.getElementById('PowerOfMist');
+
 var stage = new Konva.Stage({
     container: 'container',
     width: width + padding,
@@ -27,6 +36,8 @@ var stage = new Konva.Stage({
 
 var background = new Konva.Layer();
 var foreground = new Konva.Layer();
+
+var unlocks = '';
 
 var selected = [];
 var path;
@@ -37,76 +48,6 @@ function getManhattanDistance(pointA, pointB) {
     let xdifference = Math.abs(pointA.x - pointB.x);
     let ydifference = Math.abs(pointA.y - pointB.y);
     return (xdifference + ydifference);
-}
-
-function drawMap() {
-    let squares = [];
-    let paths = [];
-
-    let room = new Konva.Rect({
-        x: 15,
-        y: 15,
-        width: 15,
-        height: 15,
-        fill: '#5070f8',
-        stroke: '#c0c0c0',
-        strokeWidth: 3
-    });
-
-    let path = new Konva.Rect({
-        x: 5,
-        y: 5,
-        width: 5,
-        height: 5,
-        fill: '#5070f8'
-    });
-
-    for (let i = 0; i < map.length; i++) {
-        squares[i] = [];
-        for (let j = 0; j < map[0].length; j++) {
-            squares[i][j] = 0;
-        }
-    }
-
-    for (let i = 0; i < map.length; i++) {
-        for (let j = 0; j < map[0].length; j++) {
-            if (map[i][j].exits > 0) {
-                let square = room.clone({ x: 52 + 15 * j, y: 52 + 15 * i });
-                square.cache();
-                squares[i][j] = square;
-            }
-            if ((map[i][j].exits & 1) > 0) { //up
-                let square = path.clone({ x: 52 + 15 * j + 5, y: 52 + 15 * i - 3 });
-                square.cache();
-                paths.push(square);
-            }
-            if ((map[i][j].exits & 2) > 0) { //down
-                let square = path.clone({ x: 52 + 15 * j + 5, y: 52 + 15 * i + 3 });
-                square.cache();
-                paths.push(square);
-            }
-            if ((map[i][j].exits & 4) > 0) { //left
-                let square = path.clone({ x: 52 + 15 * j - 5, y: 52 + 15 * i + 5 });
-                square.cache();
-                paths.push(square);
-            }
-            if ((map[i][j].exits & 8) > 0) { //right
-                let square = path.clone({ x: 52 + 15 * j + 15, y: 52 + 15 * i + 5 });
-                square.cache();
-                paths.push(square);
-            }
-        }
-    }
-
-    for (let i = 0; i < squares.length; i++) {
-        for (let j = 0; j < squares[0].length; j++) {
-            if (squares[i][j] != 0) {
-                background.add(squares[i][j]);
-            }
-        }
-    }
-
-    paths.forEach(path => background.add(path));
 }
 
 function selectRoom(x, y) {
@@ -191,7 +132,7 @@ function getAndDrawPath(start, end) {
         connections: []
     };
     try {
-        path = sotnRando.shortest_path.shortestPath(startNode, endNode, map, "BJ");
+        path = sotnRando.shortest_path.shortestPath(startNode, endNode, map, unlocks);
     } catch (error) {
         console.error(error);
         clearSelected();
@@ -245,6 +186,21 @@ function drawPath(data) {
     foreground.add(svgPath);
 }
 
+function toggleRelic(element) {
+    if (element.classList) { 
+      element.classList.toggle("selected");
+    } else {
+      var classes = element.className.split(" ");
+      var i = classes.indexOf("selected");
+  
+      if (i >= 0) 
+        classes.splice(i, 1);
+      else 
+        classes.push("selected");
+        element.className = classes.join(" "); 
+    }
+  }
+
 findButton.addEventListener('mousedown', e => {
     if (!svgPath) {
         getAndDrawPath(selected[0], selected[1]);
@@ -253,6 +209,72 @@ findButton.addEventListener('mousedown', e => {
 
 resetButton.addEventListener('mousedown', e => {
     reset();
+});
+
+SoulOfBat.addEventListener('mousedown', e => {
+    toggleRelic(SoulOfBat);
+    if (unlocks.includes('B')) {
+        console.log('dd');
+        unlocks = unlocks.replace('B', '');
+    } else {
+        unlocks += 'B';
+    }
+});
+JewelOfOpen.addEventListener('mousedown', e => {
+    toggleRelic(JewelOfOpen);
+    if (unlocks.includes("J")) {
+        unlocks = unlocks.replace('J', '');
+    } else {
+        unlocks += 'J';
+    }
+});
+DemonCard.addEventListener('mousedown', e => {
+    toggleRelic(DemonCard);
+    if (unlocks.includes("d")) {
+        unlocks = unlocks.replace('d', '');
+    } else {
+        unlocks += 'd';
+    }
+});
+GravityBoots.addEventListener('mousedown', e => {
+    toggleRelic(GravityBoots);
+    if (unlocks.includes("V")) {
+        unlocks = unlocks.replace('V', '');
+    } else {
+        unlocks += 'V';
+    }
+});
+LeapStone.addEventListener('mousedown', e => {
+    toggleRelic(LeapStone);
+    if (unlocks.includes("L")) {
+        unlocks = unlocks.replace('L', '');
+    } else {
+        unlocks += 'L';
+    }
+});
+SoulOfWolf.addEventListener('mousedown', e => {
+    toggleRelic(SoulOfWolf);
+    if (unlocks.includes("W")) {
+        unlocks = unlocks.replace('W', '');
+    } else {
+        unlocks += 'W';
+    }
+});
+FormOfMist.addEventListener('mousedown', e => {
+    toggleRelic(FormOfMist);
+    if (unlocks.includes("M")) {
+        unlocks = unlocks.replace('M', '');
+    } else {
+        unlocks += 'M';
+    }
+});
+PowerOfMist.addEventListener('mousedown', e => {
+    toggleRelic(PowerOfMist);
+    if (unlocks.includes("p")) {
+        unlocks = unlocks.replace('p', '');
+    } else {
+        unlocks += 'p';
+    }
 });
 
 var imageObj = new Image();
@@ -307,3 +329,7 @@ function repositionStage() {
 }
 scrollContainer.addEventListener('scroll', repositionStage);
 repositionStage();
+scrollContainer.scrollBy({
+    top: 760,
+    behavior: 'auto'
+  });

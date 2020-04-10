@@ -57,6 +57,14 @@ ul  {
   align-items: center;
 }
 
+#infobox table img{
+  opacity: 0.5;
+}
+
+#infobox table .selected{
+  opacity: 1.0;
+}
+
 #infobox td {
   width: 50px;
   padding: 5px;
