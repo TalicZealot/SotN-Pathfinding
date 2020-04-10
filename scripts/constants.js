@@ -37,24 +37,32 @@
     const BREAKABLE_WALLS = [
         { description: "Holy Symbol", A: { x: 37, y: 81 }, B: { x: 37, y: 82 } },
         { description: "Holy Glasses", A: { x: 30, y: 68 }, B: { x: 30, y: 69 } },
-        { description: "Sword Card", A: { x: 17, y: 60 }, B: { x: 17, y: 61 } }
+        { description: "Sword Card", A: { x: 17, y: 60 }, B: { x: 17, y: 61 } },
+        { description: "Alch Lab Secret Down", A: { x: 10, y: 76 }, B: { x: 10, y: 77 } },
+        { description: "Clock Tower Funny Wall", A: { x: 48, y: 53 }, B: { x: 49, y: 53 } }
     ];
 
     const LOCKED_PATHS = [
-        { description: "Blue Door Alchemy Lab", x: 3, y: 70, exit: "right" },
-        { description: "Blue Door Alchemy Lab", x: 4, y: 70, exit: "left" },
-        { description: "Passage to Caverns", x: 38, y: 66, exit: "down" },
-        { description: "Passage to Caverns", x: 38, y: 67, exit: "up" },
-        { description: "Caverns Shoot needs flight to go up", x: 37, y: 70, exit: "up" },
-        { description: "Clock Tower Upper", x: 51, y: 54, exit: "left" },
-        { description: "Entrance Marble Shortcut needs flight", x: 17, y: 78, exit: "right" },
+        { x: 3, y: 70, exit: "right" }, //Blue Door Alchemy Lab
+        { x: 4, y: 70, exit: "left" },  //Blue Door Alchemy Lab
+        { x: 38, y: 66, exit: "down" }, //Passage to Caverns
+        { x: 38, y: 67, exit: "up" },   //Passage to Caverns
+        { x: 37, y: 70, exit: "up" },   //Caverns Shoot needs flight to go up
+        { x: 51, y: 54, exit: "left" }, //Clock Tower Upper
+        { x: 17, y: 78, exit: "right" }, //Entrance Marble Shortcut needs flight
     ];
 
     const PATHS = [
         { description: "Blue Door Alchemy Lab", x: 3, y: 70, dest: { x: 4, y: 70 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
         { description: "Blue Door Alchemy Lab", x: 4, y: 70, dest: { x: 3, y: 70 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Blue Door RevAlchemy Lab", x: 54, y: 23, dest: { x: 55, y: 23 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Blue Door RevAlchemy Lab", x: 55, y: 23, dest: { x: 54, y: 23 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
         { description: "Passage to Caverns", x: 38, y: 66, dest: { x: 38, y: 67 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
         { description: "Passage to Caverns", x: 38, y: 67, dest: { x: 38, y: 66 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Mines Switch", x: 30, y: 82, dest: { x: 31, y: 82 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
+        { description: "Mines Switch", x: 31, y: 82, dest: { x: 30, y: 82 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
+        { description: "RevMines Switch", x: 28, y: 11, dest: { x: 29, y: 1 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
+        { description: "RevMines Switch", x: 29, y: 1, dest: { x: 28, y: 1 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
         {
             description: "Caverns Shoot needs flight to go up", x: 37, y: 70, dest: { x: 37, y: 69 }, gapDistance: 1,
             locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]

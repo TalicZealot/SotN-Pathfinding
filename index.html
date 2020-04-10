@@ -19,22 +19,45 @@
     </div>
   </div>
   <div id="infobox">
-    <p>Select start and end room.</p>
-    <p id="findButton" style="vertical-align:middle" class="button"><span>Find </span></p>
+    <h1>SotN Pathfinding</h1>
+    <ul>
+      <li><p style="vertical-align:middle; text-align:center;">Select start and end room.</p></li>
+    </ul>
+    <ul>
+      <li><p id="findButton" style="vertical-align:middle" class="button find"><span>Find </span></p></li>
+      <li><p id="resetButton" style="vertical-align:middle" class="button reset"><span>Reset </span></p></li>
+    </ul>
     <table>
       <tr>
         <td>Start:</td>
-        <td id="startX"></td>
-        <td id="startY"></td>
+        <td id="startX">X:</td>
+        <td id="startY">Y:</td>
       </tr>
       <tr>
         <td>End:</td>
-        <td id="endX"></td>
-        <td id="endY"></td>
+        <td id="endX">X:</td>
+        <td id="endY">Y:</td>
       </tr>
       <tr>
         <td>Distance:</td>
-        <td id="distance" style="column-span: 2;"></td>
+        <td id="distance" colspan="2"></td>
+      </tr>
+    </table>
+    <table>
+      <th colspan="4">PREVIOUS</th>
+      <tr>
+        <td>Start:</td>
+        <td id="prevStartX">X:</td>
+        <td id="prevStartY">Y:</td>
+      </tr>
+      <tr>
+        <td>End:</td>
+        <td id="prevEndX">X:</td>
+        <td id="prevEndY">Y:</td>
+      </tr>
+      <tr>
+        <td>Distance:</td>
+        <td id="prevDistance" colspan="2"></td>
       </tr>
     </table>
   </div>

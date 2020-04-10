@@ -2,12 +2,22 @@ var width = 1000;
 var height = 2000;
 var padding = 500;
 
+var scrollContainer = document.getElementById('scroll-container');
+
 var findButton = document.getElementById('findButton');
+var resetButton = document.getElementById('resetButton');
+
 var startX = document.getElementById('startX');
 var startY = document.getElementById('startY');
 var endX = document.getElementById('endX');
 var endY = document.getElementById('endY');
-var scrollContainer = document.getElementById('scroll-container');
+var distanceDisplay = document.getElementById('distance');
+
+var prevStartX = document.getElementById('prevStartX');
+var prevStartY = document.getElementById('prevStartY');
+var prevEndX = document.getElementById('prevEndX');
+var prevEndY = document.getElementById('prevEndY');
+var prevDistanceDisplay = document.getElementById('prevDistance');
 
 var stage = new Konva.Stage({
     container: 'container',
@@ -21,6 +31,7 @@ var foreground = new Konva.Layer();
 var selected = [];
 var path;
 var svgPath;
+var distance;
 
 function getManhattanDistance(pointA, pointB) {
     let xdifference = Math.abs(pointA.x - pointB.x);
@@ -121,14 +132,35 @@ function selectRoom(x, y) {
 }
 
 function clearSelected() {
-    selected[0].destroy();
-    selected[1].destroy();
+    if (selected[0]) {
+        selected[0].destroy();
+    }
+    if (selected[1]) {
+        selected[1].destroy();
+    }
+
+    if (distanceDisplay.textContent != '') {
+    prevStartX.textContent = startX.textContent;
+    prevStartY.textContent = startY.textContent;
+    prevEndX.textContent = endX.textContent;
+    prevEndY.textContent = endY.textContent;
+    prevDistanceDisplay.textContent = distanceDisplay.textContent;
+    }
+
+    startX.textContent = 'X:';
+    startY.textContent = 'Y: ';
+    endX.textContent = 'X:';
+    endY.textContent = 'Y: ';
+    distanceDisplay.textContent = '';
+
     selected = [];
     foreground.batchDraw();
 }
 
 function clearSvgPath() {
-    svgPath.destroy();
+    if (svgPath) {
+        svgPath.destroy();
+    }
     foreground.batchDraw();
     svgPath = null;
 }
@@ -180,7 +212,7 @@ function getAndDrawPath(start, end) {
         drawPath(svgData);
 
         foreground.batchDraw();
-        document.getElementById('distance').textContent = path.length;
+        distanceDisplay.textContent = path.length;
     }
 }
 
@@ -199,7 +231,11 @@ function drawPath(data) {
 
     var anim = new Konva.Animation(function (frame) {
         var dashLen = pathLen - frame.time / 5;
-        svgPath.dashOffset(dashLen);
+        if (svgPath) {
+            svgPath.dashOffset(dashLen);
+        } else {
+            anim.stop();
+        }
         if (dashLen < 0) {
             anim.stop();
         }
@@ -213,6 +249,10 @@ findButton.addEventListener('mousedown', e => {
     if (!svgPath) {
         getAndDrawPath(selected[0], selected[1]);
     }
+});
+
+resetButton.addEventListener('mousedown', e => {
+    reset();
 });
 
 var imageObj = new Image();
@@ -233,19 +273,21 @@ imageObj.onload = function () {
         let x = Math.floor((mousePos.x - 4) / 15);
         let y = Math.floor((mousePos.y - 4) / 15);
 
-        if (selected.length == 0) {
+        if (selected.length == 0 && map[y][x].exits > 0) {
             selectRoom(x, y);
             startX.textContent = 'X: ' + x;
             startY.textContent = 'Y: ' + y;
-        } else if (selected.length == 1) {
+        } else if (selected.length == 1 && map[y][x].exits > 0) {
             selectRoom(x, y);
             endX.textContent = 'X: ' + x;
             endY.textContent = 'Y: ' + y;
-        }  else if (svgPath) {
+        }  else if (svgPath && map[y][x].exits > 0) {
             reset();
             selectRoom(x, y);
             startX.textContent = 'X: ' + x;
             startY.textContent = 'Y: ' + y;
+            endX.textContent = 'X:';
+            endY.textContent = 'Y: ';
         }
     });
 };
