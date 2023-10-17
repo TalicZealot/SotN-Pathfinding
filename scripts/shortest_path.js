@@ -1,293 +1,220 @@
-//A* implementation, tips taken from https://github.com/mikepound/mazesolving
 (function (self) {
-
-    let map;
     let constants;
     let PriorityQueue;
 
     if (self) {
-        constants = self.sotnRando.constants;
-        PriorityQueue = self.sotnRando.PriorityQueue;
+        constants = self.pathfinding.constants;
+        PriorityQueue = self.pathfinding.PriorityQueue;
     } else {
         map = require('./map.json');
         constants = require('./constants');
         PriorityQueue = require('./priority_queue.js');
     }
 
-    const MAP_ROOMS = constants.MAP_ROOMS;
-    const ROOMS = constants.ROOMS;
+    const diagonalCost = 14;
+    const straightCost = 10;
+    const dir = [
+        { x: 0, y: -1 }, //up
+        { x: 0, y: 1 },  //down
+        { x: -1, y: 0 }, //left
+        { x: 1, y: 0 },  //right
+        { x: -1, y: -1 },//7
+        { x: 1, y: 1 },  //9
+        { x: -1, y: -1 },//1
+        { x: 1, y: 1 }   //3
+    ];
+    const warpRooms = [
+        { key: "E", x: 13, y: 80, cost: 10 }, //Castle Entrance
+        { key: "M", x: 33, y: 86, cost: 10 }, //Abandoned Mine
+        { key: "W", x: 57, y: 59, cost: 10 }, //Outer Wall
+        { key: "K", x: 38, y: 54, cost: 10 }, //Castle Keep
+        { key: "O", x: 35, y: 63, cost: 10 }, //Olrox's Quarters
+        { key: "e", x: 46, y: 13, cost: 10 }, //Reverse Entrance
+        { key: "m", x: 26, y: 7, cost: 10 },  //Reverse Mine
+        { key: "w", x: 2, y: 34, cost: 10 },  //Reverse Outer Wall
+        { key: "k", x: 21, y: 39, cost: 10 }, //Reverse Keep
+        { key: "o", x: 24, y: 30, cost: 10 }  //DeathWing's Lair
+    ]
+
+    function checkForPath(nodeValue, dir) {
+        switch (dir) {
+            case 0:
+                return ((nodeValue & 1) > 0);
+            case 1:
+                return ((nodeValue & 2) > 0);
+            case 2:
+                return ((nodeValue & 4) > 0);
+            case 3:
+                return ((nodeValue & 8) > 0);
+            case 4:
+                return ((nodeValue & 16) > 0);
+            case 5:
+                return ((nodeValue & 32) > 0);
+            case 6:
+                return ((nodeValue & 64) > 0);
+            case 7:
+                return ((nodeValue & 128) > 0);
+            default:
+                return false;
+        }
+    }
 
     function isSubset(firstSet, secondSet) {
         return Array.from(firstSet).reduce(function (allPresent, element) {
             return allPresent && secondSet.has(element);
         }, true);
     }
-    function drawPath(path, map) {
-        let pathMap = [];
-        for (let i = 0; i < map.length; i++) {
-            pathMap[i] = [];
-            for (let j = 0; j < map[0].length; j++) {
-                pathMap[i][j] = 0;
+
+    function meetsConditions(locks, unlocks) {
+        return isSubset(new Set(locks.toString()), new Set(unlocks.toString()));
+    }
+
+    function nextWarp(x, warps) {
+        let index;
+        for (let i = 0; i < warpRooms.length; i++) {
+            if (warpRooms[i].x == x) {
+                index = i;
+                break;
             }
         }
-
-        path.forEach(x => {
-            pathMap[x.y][x.x] = 1;
-        });
-
-        hRow = '0  : ';
-        for (let i = 0; i < map.length; i++) {
-            for (let j = 0; j < map[0].length; j++) {
-                if (pathMap[i][j] > 0) {
-                    hRow = hRow + '▒▒';
-                } else if (map[i][j].exits == 0) {
-                    hRow = hRow + '  ';
-                } else if (map[i][j].exits == 15) {
-                    hRow = hRow + '┤├';
-                } else if (map[i][j].exits == 8) {
-                    hRow = hRow + '█─';
-                } else if (map[i][j].exits == 4) {
-                    hRow = hRow + '─█';
-                } else if (map[i][j].exits == 1) {
-                    hRow = hRow + '╛╘';
-                } else if (map[i][j].exits == 2) {
-                    hRow = hRow + '╕╒';
-                } else if (map[i][j].exits == 3) {
-                    hRow = hRow + '││';
-                } else if (map[i][j].exits == 12) {
-                    hRow = hRow + '──';
-                } else if (map[i][j].exits == 5) {
-                    hRow = hRow + '─┘';
-                } else if (map[i][j].exits == 9) {
-                    hRow = hRow + '└─';
-                } else if (map[i][j].exits == 6) {
-                    hRow = hRow + '─┐';
-                } else if (map[i][j].exits == 10) {
-                    hRow = hRow + '┌─';
-                } else if (map[i][j].exits == 7) {
-                    hRow = hRow + '┤█';
-                } else if (map[i][j].exits == 11) {
-                    hRow = hRow + '█├';
-                } else {
-                    hRow = hRow + '██';
-                }
-            }
-            console.log(hRow);
-            hRow = (i + 1).toString().padEnd(3, " ") + ': ';
+        let max;
+        if (index < 5) {
+            max = 5;
+        } else {
+            max = warpRooms.length;
         }
-    }
-    function performanceTest(loops, locations, map) {
-        let startTime = new Date().getTime();
-        for (let i = 0; i < loops; i++) {
-            for (let i = 0; i < locations.length; i++) {
-                for (let j = 0; j < locations.length; j++) {
-                    if (j != i) {
-                        let path = shortestPath(locations[i], locations[j], map);
-                    }
-                }
+        for (let i = index; i < max; i++) {
+            if (warps.includes(warpRooms[i].key)) {
+                return i;
             }
         }
-        let endTime = new Date().getTime() - startTime;
-        let seconds = Math.floor((endTime / 1000) % 60);
-        let minutes = Math.floor((endTime / (1000 * 60)) % 60);
-        let hours = Math.floor((endTime / (1000 * 60 * 60)) % 24);
-        console.log('Executed shortestPath a total of ' + (loops * locations.length) + 'times in: ' + hours + ' hours, ' + minutes + ' minutes and ' + seconds + ' seconds.');
-    }
-    // EuclideanDistance would be used in a scenario, where more precise positions on a non-grid map were significant.
-    function getEuclideanDistance(pointA, pointB) {
-        let xdifference = Math.abs(pointA.x - pointB.x);
-        let ydifference = Math.abs(pointA.y - pointB.y);
-        return Math.sqrt((xdifference * xdifference) + (ydifference * ydifference));
-    }
-
-    function getManhattanDistance(pointA, pointB) {
-        let xdifference = Math.abs(pointA.x - pointB.x);
-        let ydifference = Math.abs(pointA.y - pointB.y);
-        return (xdifference + ydifference);
-    }
-
-    function checkForPathUp(nodeValue) {
-        return ((nodeValue & 1) > 0);
-    }
-
-    function checkForPathDown(nodeValue) {
-        return ((nodeValue & 2) > 0);
-    }
-
-    function checkForPathLeft(nodeValue) {
-        return ((nodeValue & 4) > 0);
-    }
-
-    function checkForPathRight(nodeValue) {
-        return ((nodeValue & 8) > 0);
-    }
-
-    function nodeExists(x, y) {
-        return (x >= 0 && y >= 0);
-    }
-
-    function expandExit(node, queue, goalNode, prevDistance, prevNode, explored, connections) {
-        let queuedNode = queue.find(node);
-
-        if (explored.find(x => x.x == node.x && x.y == node.y)) {
-            return;
+        if (max == 5 && index > 0) {
+            return 0;
         }
-
-        // Increment distance by 1, since we are dealing with adjacent rooms.
-        let newdistance = prevDistance + 1;
-        // Prioritize travelling in a vector towards the goal. Manhattan distance works well, since this is a square grid.
-        let remaining = getManhattanDistance(node, goalNode);
-
-        if (queuedNode && newdistance < queuedNode.distance) {
-            queuedNode.distance = newdistance;
-            queuedNode.prev = prevNode;
-            queue.increaseKey(queuedNode, newdistance + remaining);
-        } else if (queuedNode && newdistance > queuedNode.distanc) {
-            queue.decreaseKey(queuedNode, newdistance + remaining);
-        } else if (!queuedNode) {
-            let newNode = {
-                x: node.x,
-                y: node.y,
-                distance: newdistance,
-                cost: newdistance + remaining,
-                prev: prevNode,
-                connections: connections
-            };
-            queue.push(newNode);
-        }
+        return -1;
     }
 
-    function expandConnection(node, queue, goalNode, prevDistance, prevNode, explored, gapDistance, connections) {
-        let queuedNode = queue.find(node);
-
-        if (explored.find(x => x.x == node.x && x.y == node.y)) {
-            return;
-        }
-
-        let newdistance = prevDistance + gapDistance;
-        let remaining = getManhattanDistance(node, goalNode);
-
-        if (queuedNode && newdistance < queuedNode.distance) {
-            queuedNode.distance = newdistance;
-            queuedNode.prev = prevNode;
-            queue.increaseKey(queuedNode, newdistance + remaining);
-        } else if (queuedNode && newdistance > queuedNode.distanc) {
-            queue.decreaseKey(queuedNode, newdistance + remaining);
-        } else if (!queuedNode) {
-            let newNode = {
-                x: node.x,
-                y: node.y,
-                distance: newdistance,
-                cost: newdistance + remaining,
-                prev: prevNode,
-                connections: connections
-            };
-            queue.push(newNode);
-        }
+    function getDiagonalDistance(pointA, pointB) {
+        let xdiff = Math.abs(pointA.x - pointB.x);
+        let ydiff = Math.abs(pointA.y - pointB.y);
+        let dist = straightCost * (xdiff + ydiff) + (diagonalCost - 2 * straightCost) * Math.min(xdiff, ydiff);
+        return dist;
     }
 
-    function shortestPath(startingNode, goalNode, adjacencyMap, unlocks) {
-        if (adjacencyMap[startingNode.y][startingNode.x].exits == 0) {
-            throw 'Start is not on the map!';
-        }
-        if (adjacencyMap[goalNode.y][goalNode.x].exits == 0) {
-            throw 'End is not on the map!';
-        }
+    function shortestPath(start, end, relics, warps) {
+        //  F = G + H
+        //  G = total travelled distance at node
+        //  H = diagonal distance from node to target
+        //  key = unique node key "x:y"
+        const open = new PriorityQueue("F", "H", "key");
+        const explored = new Map();
+        let finished = false;
+        const startNode = {
+            exits: map[start.y][start.x].exits,
+            connections: map[start.y][start.x].connections,
+            x: start.x,
+            y: start.y,
+            G: 0,
+            H: getDiagonalDistance(start, end),
+            F: getDiagonalDistance(start, end),
+            prev: null,
+            key: start.x + ":" + start.y
+        };
+        open.add(startNode);
 
-        let start = {};
-        start.x = startingNode.x;
-        start.y = startingNode.y;
-        start.remaining = getManhattanDistance(start, goalNode);
-        start.distance = 0;
-        start.connections = adjacencyMap[startingNode.y][startingNode.x].connections;
-        let travelled = new PriorityQueue("cost");
-        travelled.push(start);
-        let explored = [];
-        let path = [];
-
-        while (true) {
-            currentRoot = travelled.top();
-
-            // End if the goal bubbles to the top of the queue.
-            if (currentRoot.x == goalNode.x && currentRoot.y == goalNode.y) {
+        while (open.length() > 0) {
+            let current = open.deque();
+            explored.set(current.x + ":" + current.y, current);
+            if (current.x == end.x && current.y == end.y) {
+                finished = true;
                 break;
             }
 
-            // Expand all exits
-            let roomExits = adjacencyMap[currentRoot.y][currentRoot.x].exits;
-            if (checkForPathUp(roomExits) && nodeExists(currentRoot.x, currentRoot.y - 1)) {
-                let node = {
-                    x: currentRoot.x,
-                    y: currentRoot.y - 1
-                };
-                expandExit(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, adjacencyMap[node.y][node.x].connections);
-            }
-            if (checkForPathDown(roomExits) && nodeExists(currentRoot.x, currentRoot.y + 1)) {
-                let node = {
-                    x: currentRoot.x,
-                    y: currentRoot.y + 1
-                };
-                expandExit(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, adjacencyMap[node.y][node.x].connections);
-            }
-            if (checkForPathLeft(roomExits) && nodeExists(currentRoot.x - 1, currentRoot.y)) {
-                let node = {
-                    x: currentRoot.x - 1,
-                    y: currentRoot.y
-                };
-                expandExit(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, adjacencyMap[node.y][node.x].connections);
-            }
-            if (checkForPathRight(roomExits) && nodeExists(currentRoot.x + 1, currentRoot.y)) {
-                let node = {
-                    x: currentRoot.x + 1,
-                    y: currentRoot.y
-                };
-                expandExit(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, adjacencyMap[node.y][node.x].connections);
-            }
-            // Expand custom connections
-            currentRoot.connections.forEach(connection => {
-                if (connection.locks) {
-                    for (let i = 0; i < connection.locks.length; i++) {
-                        if (isSubset(new Set(connection.locks[i].toString()), new Set(unlocks.toString()))) {
-                            let node = {
-                                x: connection.x,
-                                y: connection.y
-                            };
-                            expandConnection(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, connection.gapDistance, adjacencyMap[node.y][node.x].connections);
-                            break;
-                        }
-                    }
-                } else if (!connection.locks) {
+            for (let i = 0; i < 8; i++) {
+                let cost = i < 4 ? straightCost : diagonalCost;
+                const x = current.x + dir[i].x;
+                const y = current.y + dir[i].y;
+                if (!explored.has(x + ":" + y) && checkForPath(current.exits, i) && map[y] && map[y][x]) {
+                    const G = current.G + cost;
+                    const H = getDiagonalDistance({ x, y }, { x: end.x, y: end.y });
                     let node = {
-                        x: connection.x,
-                        y: connection.y
+                        exits: map[y][x].exits,
+                        connections: map[y][x].connections,
+                        x: x,
+                        y: y,
+                        G: G,
+                        H: H,
+                        F: G + H,
+                        prev: current,
+                        key: x + ":" + y
                     };
-                    expandConnection(node, travelled, goalNode, currentRoot.distance, currentRoot, explored, connection.gapDistance, adjacencyMap[node.y][node.x].connections);
+                    open.add(node);
+                }
+            }
+            current.connections?.forEach(c => {
+                if (!explored.has(c.x + ":" + c.y) && !c.warp && (!c.locks || meetsConditions(c.locks, relics))) {
+                    const x = c.x;
+                    const y = c.y;
+                    const G = current.G + c.cost;
+                    const H = getDiagonalDistance({ x, y }, { x: end.x, y: end.y });
+                    let node = {
+                        exits: map[y][x].exits,
+                        connections: map[y][x].connections,
+                        x: x,
+                        y: y,
+                        G: G,
+                        H: H,
+                        F: G + H,
+                        prev: current,
+                        key: x + ":" + y
+                    };
+                    open.add(node);
+                } else if (c.warp) {
+                    let dest = nextWarp(current.x, warps);
+                    if (dest >= 0) {
+                        const x = warpRooms[dest].x;
+                        const y = warpRooms[dest].y;
+                        const G = current.G + warpRooms[dest].cost;
+                        const H = getDiagonalDistance({ x, y }, { x: end.x, y: end.y });
+                        let node = {
+                            exits: map[y][x].exits,
+                            connections: map[y][x].connections,
+                            x: x,
+                            y: y,
+                            G: G,
+                            H: H,
+                            F: G + H,
+                            prev: current,
+                            key: x + ":" + y
+                        };
+                        open.add(node);
+                    }
                 }
             });
-
-            if (!checkForPathUp(roomExits) && !checkForPathDown(roomExits) && !checkForPathLeft(roomExits) && !checkForPathRight(roomExits) && (!currentRoot.connections || currentRoot.connections.length < 1)) {
-                throw "No exit \n" + adjacencyMap[currentRoot.y][currentRoot.x];
-            }
-
-            // If the current root is explored, but still at the top, pop it out.
-            if (currentRoot == travelled.top()) {
-                explored.push(travelled.pop());
-            }
         }
 
-        // Trace previous rooms for resulting path.
-        path.push(travelled.top());
-        while (path[path.length - 1].prev) {
-            path.push(path[path.length - 1].prev);
+        let path = [];
+        if (finished) {
+            path.push(explored.get(end.x + ":" + end.y));
+        } else {
+            const exploredNodes = Array.from(explored.values());
+            exploredNodes.sort((a, b) => a.H - b.H);
+            path.push(exploredNodes[0]);
         }
-        return path;
+        let current = path[path.length - 1];
+        while (current.prev) {
+            path.push(current.prev);
+            current = path[path.length - 1];
+        }
+
+        return path.reverse();
     }
 
     const exports = {
         shortestPath: shortestPath
     };
     if (self) {
-        self.sotnRando = Object.assign(self.sotnRando || {}, {
+        self.pathfinding = Object.assign(self.pathfinding || {}, {
             shortest_path: exports,
         });
     } else {

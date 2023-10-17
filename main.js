@@ -1,32 +1,38 @@
-var width = 1000;
-var height = 2000;
-var padding = 500;
+const width = 1000;
+const height = 2000;
+const padding = 500;
 
-var scrollContainer = document.getElementById('scroll-container');
-
-var findButton = document.getElementById('findButton');
-var resetButton = document.getElementById('resetButton');
-
-var startX = document.getElementById('startX');
-var startY = document.getElementById('startY');
-var endX = document.getElementById('endX');
-var endY = document.getElementById('endY');
-var distanceDisplay = document.getElementById('distance');
-
-var prevStartX = document.getElementById('prevStartX');
-var prevStartY = document.getElementById('prevStartY');
-var prevEndX = document.getElementById('prevEndX');
-var prevEndY = document.getElementById('prevEndY');
-var prevDistanceDisplay = document.getElementById('prevDistance');
-
-var SoulOfBat = document.getElementById('SoulOfBat');
-var JewelOfOpen = document.getElementById('JewelOfOpen');
-var DemonCard = document.getElementById('DemonCard');
-var GravityBoots = document.getElementById('GravityBoots');
-var LeapStone = document.getElementById('LeapStone');
-var SoulOfWolf = document.getElementById('SoulOfWolf');
-var FormOfMist = document.getElementById('FormOfMist');
-var PowerOfMist = document.getElementById('PowerOfMist');
+const scrollContainer = document.getElementById('scroll-container');
+const findButton = document.getElementById('findButton');
+const resetButton = document.getElementById('resetButton');
+const startX = document.getElementById('startX');
+const startY = document.getElementById('startY');
+const endX = document.getElementById('endX');
+const endY = document.getElementById('endY');
+const distanceDisplay = document.getElementById('distance');
+const prevStartX = document.getElementById('prevStartX');
+const prevStartY = document.getElementById('prevStartY');
+const prevEndX = document.getElementById('prevEndX');
+const prevEndY = document.getElementById('prevEndY');
+const prevDistanceDisplay = document.getElementById('prevDistance');
+const SoulOfBat = document.getElementById('SoulOfBat');
+const JewelOfOpen = document.getElementById('JewelOfOpen');
+const DemonCard = document.getElementById('DemonCard');
+const GravityBoots = document.getElementById('GravityBoots');
+const LeapStone = document.getElementById('LeapStone');
+const SoulOfWolf = document.getElementById('SoulOfWolf');
+const FormOfMist = document.getElementById('FormOfMist');
+const PowerOfMist = document.getElementById('PowerOfMist');
+const CastleEntrance = document.getElementById('CastleEntrance');
+const AbandonedMine = document.getElementById('AbandonedMine');
+const OuterWall = document.getElementById('OuterWall');
+const CastleKeep = document.getElementById('CastleKeep');
+const OlroxsQuarters = document.getElementById('OlroxsQuarters');
+const ReverseEntrance = document.getElementById('ReverseEntrance');
+const ReverseMine = document.getElementById('ReverseMine');
+const ReverseOuterWall = document.getElementById('ReverseOuterWall');
+const ReverseKeep = document.getElementById('ReverseKeep');
+const DeathWingsLair = document.getElementById('DeathWingsLair');
 
 var stage = new Konva.Stage({
     container: 'container',
@@ -34,12 +40,11 @@ var stage = new Konva.Stage({
     height: height
 });
 
-var background = new Konva.Layer();
-var foreground = new Konva.Layer();
-
-var unlocks = '';
-
-var selected = [];
+const background = new Konva.Layer();
+const foreground = new Konva.Layer();
+const unlocks = '';
+const warps = '';
+const selected = [];
 var path;
 var svgPath;
 var distance;
@@ -81,11 +86,11 @@ function clearSelected() {
     }
 
     if (distanceDisplay.textContent != '') {
-    prevStartX.textContent = startX.textContent;
-    prevStartY.textContent = startY.textContent;
-    prevEndX.textContent = endX.textContent;
-    prevEndY.textContent = endY.textContent;
-    prevDistanceDisplay.textContent = distanceDisplay.textContent;
+        prevStartX.textContent = startX.textContent;
+        prevStartY.textContent = startY.textContent;
+        prevEndX.textContent = endX.textContent;
+        prevEndY.textContent = endY.textContent;
+        prevDistanceDisplay.textContent = distanceDisplay.textContent;
     }
 
     startX.textContent = 'X:';
@@ -94,7 +99,7 @@ function clearSelected() {
     endY.textContent = 'Y: ';
     distanceDisplay.textContent = '';
 
-    selected = [];
+    selected.length = 0;
     foreground.batchDraw();
 }
 
@@ -132,7 +137,7 @@ function getAndDrawPath(start, end) {
         connections: []
     };
     try {
-        path = sotnRando.shortest_path.shortestPath(startNode, endNode, map, unlocks);
+        path = pathfinding.shortest_path.shortestPath(startNode, endNode, unlocks, warps);
     } catch (error) {
         console.error(error);
         clearSelected();
@@ -140,7 +145,7 @@ function getAndDrawPath(start, end) {
 
     if (path && path.length > 0) {
         let svgData = 'M';
-        for (let i = path.length - 1; i >= 0; i--) {
+        for (let i = 0; i < path.length; i++) {
             if (i < path.length - 1) {
                 if (i < path.length - 1 && getManhattanDistance(path[i + 1], path[i]) > 3) {
                     svgData += 'M';
@@ -187,19 +192,19 @@ function drawPath(data) {
 }
 
 function toggleRelic(element) {
-    if (element.classList) { 
-      element.classList.toggle("selected");
+    if (element.classList) {
+        element.classList.toggle("selected");
     } else {
-      var classes = element.className.split(" ");
-      var i = classes.indexOf("selected");
-  
-      if (i >= 0) 
-        classes.splice(i, 1);
-      else 
-        classes.push("selected");
-        element.className = classes.join(" "); 
+        var classes = element.className.split(" ");
+        var i = classes.indexOf("selected");
+
+        if (i >= 0)
+            classes.splice(i, 1);
+        else
+            classes.push("selected");
+        element.className = classes.join(" ");
     }
-  }
+}
 
 findButton.addEventListener('mousedown', e => {
     if (!svgPath) {
@@ -210,7 +215,7 @@ findButton.addEventListener('mousedown', e => {
 resetButton.addEventListener('mousedown', e => {
     reset();
 });
-
+//Relic toggles
 SoulOfBat.addEventListener('mousedown', e => {
     toggleRelic(SoulOfBat);
     if (unlocks.includes('B')) {
@@ -275,6 +280,77 @@ PowerOfMist.addEventListener('mousedown', e => {
         unlocks += 'P';
     }
 });
+//Warp toggles
+CastleEntrance.addEventListener('mousedown', e => {
+    if (warps.includes('E')) {
+        warps = warps.replace('E', '');
+    } else {
+        wars += 'E';
+    }
+});
+AbandonedMine.addEventListener('mousedown', e => {
+    if (warps.includes('M')) {
+        warps = warps.replace('M', '');
+    } else {
+        wars += 'M';
+    }
+});
+OuterWall.addEventListener('mousedown', e => {
+    if (warps.includes('W')) {
+        warps = warps.replace('W', '');
+    } else {
+        wars += 'W';
+    }
+});
+CastleKeep.addEventListener('mousedown', e => {
+    if (warps.includes('K')) {
+        warps = warps.replace('K', '');
+    } else {
+        wars += 'K';
+    }
+});
+OlroxsQuarters.addEventListener('mousedown', e => {
+    if (warps.includes('O')) {
+        warps = warps.replace('O', '');
+    } else {
+        wars += 'O';
+    }
+});
+ReverseEntrance.addEventListener('mousedown', e => {
+    if (warps.includes('e')) {
+        warps = warps.replace('e', '');
+    } else {
+        wars += 'e';
+    }
+});
+ReverseMine.addEventListener('mousedown', e => {
+    if (warps.includes('m')) {
+        warps = warps.replace('m', '');
+    } else {
+        wars += 'm';
+    }
+});
+ReverseOuterWall.addEventListener('mousedown', e => {
+    if (warps.includes('w')) {
+        warps = warps.replace('w', '');
+    } else {
+        wars += 'w';
+    }
+});
+ReverseKeep.addEventListener('mousedown', e => {
+    if (warps.includes('k')) {
+        warps = warps.replace('k', '');
+    } else {
+        wars += 'k';
+    }
+});
+DeathWingsLair.addEventListener('mousedown', e => {
+    if (warps.includes('o')) {
+        warps = warps.replace('o', '');
+    } else {
+        wars += 'o';
+    }
+});
 
 var imageObj = new Image();
 imageObj.onload = function () {
@@ -302,7 +378,7 @@ imageObj.onload = function () {
             selectRoom(x, y);
             endX.textContent = 'X: ' + x;
             endY.textContent = 'Y: ' + y;
-        }  else if (svgPath && map[y][x].exits > 0) {
+        } else if (svgPath && map[y][x].exits > 0) {
             reset();
             selectRoom(x, y);
             startX.textContent = 'X: ' + x;
@@ -331,4 +407,4 @@ repositionStage();
 scrollContainer.scrollBy({
     top: 760,
     behavior: 'auto'
-  });
+});

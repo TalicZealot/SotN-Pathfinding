@@ -53,42 +53,44 @@
     ];
 
     const PATHS = [
-        { description: "Blue Door Alchemy Lab", x: 3, y: 70, dest: { x: 4, y: 70 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Blue Door Alchemy Lab", x: 4, y: 70, dest: { x: 3, y: 70 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Blue Door RevAlchemy Lab", x: 54, y: 23, dest: { x: 55, y: 23 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Blue Door RevAlchemy Lab", x: 55, y: 23, dest: { x: 54, y: 23 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Passage to Caverns", x: 38, y: 66, dest: { x: 38, y: 67 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Passage to Caverns", x: 38, y: 67, dest: { x: 38, y: 66 }, gapDistance: 1, locks: [[RELIC.JEWEL_OF_OPEN]] },
-        { description: "Mines Switch", x: 30, y: 82, dest: { x: 31, y: 82 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
-        { description: "Mines Switch", x: 31, y: 82, dest: { x: 30, y: 82 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
-        { description: "RevMines Switch", x: 28, y: 11, dest: { x: 29, y: 1 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
-        { description: "RevMines Switch", x: 29, y: 1, dest: { x: 28, y: 1 }, gapDistance: 1, locks: [[RELIC.DEMON_CARD]] },
+        { description: "Blue Door Alchemy Lab", x: 3, y: 70, dest: { x: 4, y: 70 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Blue Door Alchemy Lab", x: 4, y: 70, dest: { x: 3, y: 70 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Blue Door RevAlchemy Lab", x: 54, y: 23, dest: { x: 55, y: 23 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Blue Door RevAlchemy Lab", x: 55, y: 23, dest: { x: 54, y: 23 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Passage to Caverns", x: 38, y: 66, dest: { x: 38, y: 67 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Passage to Caverns", x: 38, y: 67, dest: { x: 38, y: 66 }, cost: 10, locks: [[RELIC.JEWEL_OF_OPEN]] },
+        { description: "Mines Switch", x: 30, y: 82, dest: { x: 31, y: 82 }, cost: 10, locks: [[RELIC.DEMON_CARD]] },
+        { description: "Mines Switch", x: 31, y: 82, dest: { x: 30, y: 82 }, cost: 10, locks: [[RELIC.DEMON_CARD]] },
+        { description: "RevMines Switch", x: 28, y: 11, dest: { x: 29, y: 1 }, cost: 10, locks: [[RELIC.DEMON_CARD]] },
+        { description: "RevMines Switch", x: 29, y: 1, dest: { x: 28, y: 1 }, cost: 10, locks: [[RELIC.DEMON_CARD]] },
         {
-            description: "Caverns Shoot needs flight to go up", x: 37, y: 70, dest: { x: 37, y: 69 }, gapDistance: 1,
+            description: "Caverns Shoot needs flight to go up", x: 37, y: 70, dest: { x: 37, y: 69 }, cost: 10,
             locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
             [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
         },
         {
-            description: "Clock Tower Upper", x: 51, y: 54, dest: { x: 50, y: 54 }, gapDistance: 1,
+            description: "Clock Tower Upper", x: 51, y: 54, dest: { x: 50, y: 54 }, cost: 10,
             locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
             [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
         },
         {
-            description: "Entrance Marble Shortcut needs flight", x: 17, y: 78, dest: { x: 18, y: 78 }, gapDistance: 1,
+            description: "Entrance Marble Shortcut needs flight", x: 17, y: 78, dest: { x: 18, y: 78 }, cost: 10,
             locks: [[RELIC.SOUL_OF_BAT], [RELIC.LEAP_STONE + RELIC.GRAVITY_BOOTS], [RELIC.SOUL_OF_WOLF + RELIC.GRAVITY_BOOTS],
             [RELIC.FORM_OF_MIST + RELIC.GRAVITY_BOOTS], [RELIC.FORM_OF_MIST + RELIC.POWER_OF_MIST]]
-        },
-        // Warp rooms
-        { description: "Entrance warp to Mine", x: 13, y: 80, dest: { x: 33, y: 86 }, gapDistance: 5 },
-        { description: "Mine warp to Outer", x: 33, y: 86, dest: { x: 57, y: 59 }, gapDistance: 5 },
-        { description: "Outer warp to Keep", x: 57, y: 59, dest: { x: 38, y: 54 }, gapDistance: 5 },
-        { description: "Keep warp to Olrox", x: 38, y: 54, dest: { x: 35, y: 63 }, gapDistance: 5 },
-        { description: "Olrox warp to Entrance", x: 35, y: 63, dest: { x: 13, y: 80 }, gapDistance: 5 },
-        { description: "Reverse Entrance warp to Mine", x: 46, y: 13, dest: { x: 26, y: 7 }, gapDistance: 5 },
-        { description: "Reverse Mine warp to Outer", x: 26, y: 7, dest: { x: 2, y: 34 }, gapDistance: 5 },
-        { description: "Reverse Outer warp to Keep", x: 2, y: 34, dest: { x: 21, y: 39 }, gapDistance: 5 },
-        { description: "Reverse Keep warp to Olrox", x: 21, y: 39, dest: { x: 24, y: 30 }, gapDistance: 5 },
-        { description: "Reverse Olrox warp to Entrance", x: 24, y: 30, dest: { x: 46, y: 13 }, gapDistance: 5 }
+        }
+    ];
+
+    const WARPS = [
+        { warp: true, x: 13, y: 80, },//CastleEntrance
+        { warp: true, x: 33, y: 86, },//AbandonedMine
+        { warp: true, x: 57, y: 59, },//OuterWall
+        { warp: true, x: 38, y: 54, },//CastleKeep
+        { warp: true, x: 35, y: 63, },//Olrox's Quarters
+        { warp: true, x: 46, y: 13, },//ReverseEntrance
+        { warp: true, x: 26, y: 7, }, //ReverseMine
+        { warp: true, x: 2, y: 34, }, //ReverseOuterWall
+        { warp: true, x: 21, y: 39, },//ReverseKeep
+        { warp: true, x: 24, y: 30, } //DeathWing'sLair
     ];
 
     const ROOMS = {
@@ -138,8 +140,6 @@
         REV_KEEP_WARP: 43,
         REV_OLROX_WARP: 44
     };
-
-    //x-1
 
     const MAP_ROOMS = [
         { name: "SOUL_OF_BAT", x: 46, y: 63 },
@@ -195,6 +195,7 @@
         BREAKABLE_WALLS: BREAKABLE_WALLS,
         LOCKED_PATHS: LOCKED_PATHS,
         PATHS: PATHS,
+        WARPS: WARPS,
         RELIC: RELIC,
         ROOMS: ROOMS,
         MAP_ROOMS: MAP_ROOMS,

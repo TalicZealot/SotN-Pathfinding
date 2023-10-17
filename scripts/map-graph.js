@@ -1,5 +1,5 @@
 //#!/usr/bin/env node
-// This tool parses F_MAP.bin and generates an adjacency matrix if the rooms in the game for the shortest-path utility.
+// This tool parses F_MAP.bin and generates an adjacency map if the rooms in the game for the shortest-path utility.
 // Usage: tools/map-graph <path-to-F_MAP.bin> <path-to-output>
 const fs = require('fs');
 const constants = require('./constants');
@@ -8,6 +8,7 @@ const utils = require('./map_utils');
 const BREAKABLE_WALLS = constants.BREAKABLE_WALLS;
 const LOCKED_PATHS = constants.LOCKED_PATHS;
 const PATHS = constants.PATHS;
+const WARPS = constants.WARPS;
 
 function drawMap(map) {
     console.log('IN-GAME MAP');
@@ -37,7 +38,9 @@ function drawAdjacencyMap(map) {
     let hRow = '0  : ';
     for (let i = 0; i < 94; i++) {
         for (let j = 0; j < 60; j++) {
-            if (map[i][j].exits == 0) {
+            if (!map[i][j].exits) {
+                hRow = hRow + '  ';
+            } else if (map[i][j].exits == 0) {
                 hRow = hRow + '  ';
             } else if (map[i][j].exits == 15) {
                 hRow = hRow + '┤├';
@@ -81,7 +84,7 @@ const savePath = process.argv[3];
 let data = utils.restoreFileF(bin, constants.F_MAP);
 let mapHex = utils.flippedBufToHex(data);
 
-// Path adjacency matrix
+// Path adjacency map
 let mapGraph = [];
 for (let i = 0; i < 47; i++) {
     mapGraph[i] = [];
@@ -106,6 +109,18 @@ for (let i = 0; i < 47; i++) {
             if (mapHex[index + 2] > 0) {
                 mapGraph[i][j] |= 8; //right
             }
+            if ((index - (256 * 2) - 2) > 0 && mapHex[index - (256 * 2) - 2] > 0) {
+                mapGraph[i][j] |= 16; //up-left
+            }
+            if ((index - (256 * 2) + 2) > 0 && mapHex[index - (256 * 2) + 2] > 0) {
+                mapGraph[i][j] |= 32; //up-right
+            }
+            if ((index + (256 * 2) - 2) > 0 && mapHex[index + (256 * 2) - 2] > 0) {
+                mapGraph[i][j] |= 64; //down-left
+            }
+            if (mapHex[index + (256 * 2) + 2] > 0) {
+                mapGraph[i][j] |= 128; //down-right
+            }
         }
     }
 }
@@ -115,7 +130,7 @@ let fullMapGraph = [];
 for (let i = 0; i < 94; i++) {
     fullMapGraph[i] = [];
     for (let j = 0; j < 60; j++) {
-        fullMapGraph[i][j] = { exits: 0, connections: [] };
+        fullMapGraph[i][j] = {};
     }
 }
 let row = 46;
@@ -131,17 +146,34 @@ for (let i = 0; i < 94; i++) {
 
         let value = mapGraph[row][col];
 
+        if (value == 0) {
+            continue;
+        }
+
+        //mirror exits
         if (!flipped && ((value & 1) > 0)) {
-            fullMapGraph[i][j].exits = fullMapGraph[i][j].exits | 2;
+            fullMapGraph[i][j].exits |= 2;
         }
         if (!flipped && ((value & 2) > 0)) {
-            fullMapGraph[i][j].exits = fullMapGraph[i][j].exits | 1;
+            fullMapGraph[i][j].exits |= 1;
         }
         if (!flipped && ((value & 4) > 0)) {
-            fullMapGraph[i][j].exits = fullMapGraph[i][j].exits | 8;
+            fullMapGraph[i][j].exits |= 8;
         }
         if (!flipped && ((value & 8) > 0)) {
-            fullMapGraph[i][j].exits = fullMapGraph[i][j].exits | 4;
+            fullMapGraph[i][j].exits |= 4;
+        }
+        if (!flipped && ((value & 16) > 0)) {
+            fullMapGraph[i][j].exits |= 128;
+        }
+        if (!flipped && ((value & 32) > 0)) {
+            fullMapGraph[i][j].exits |= 64;
+        }
+        if (!flipped && ((value & 64) > 0)) {
+            fullMapGraph[i][j].exits |= 32;
+        }
+        if (!flipped && ((value & 128) > 0)) {
+            fullMapGraph[i][j].exits |= 16;
         }
         if (flipped) {
             fullMapGraph[i][j].exits = mapGraph[row][col];
@@ -181,10 +213,28 @@ PATHS.forEach(path => {
     let newPath = {
         x: path.dest.x,
         y: path.dest.y,
-        gapDistance: path.gapDistance,
-        locks: path.locks
-     };
+        cost: path.cost,
+        locks: path.locks,
+        warp: path.warp
+    };
+
+    if (!fullMapGraph[path.y][path.x].connections) {
+        fullMapGraph[path.y][path.x].connections = [];
+    }
+
     fullMapGraph[path.y][path.x].connections.push(newPath);
+});
+// Add warps
+WARPS.forEach(w => {
+    let warp = {
+        warp: w.warp
+    };
+
+    if (!fullMapGraph[w.y][w.x].connections) {
+        fullMapGraph[w.y][w.x].connections = [];
+    }
+
+    fullMapGraph[w.y][w.x].connections.push(warp);
 });
 
 // Output to JSON
@@ -207,7 +257,7 @@ fs.writeFile(savePath, jsGraph, 'utf8', function (err) {
         return console.log(err);
     }
     console.log("File has been saved.");
-}); 
+});
 
 
 drawAdjacencyMap(fullMapGraph);

@@ -92,6 +92,12 @@ ul  {
   animation: pulse 1s infinite;
 }
 
+.warp-button {
+  display: inline-block;
+  cursor: pointer;
+  padding: 0.3em;
+}
+
 @keyframes pulse {
   0% {
     background-color: #400000;

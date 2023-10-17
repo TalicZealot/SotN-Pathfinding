@@ -3,13 +3,13 @@
 
 <head>
   <script src="https://unpkg.com/konva@4.2.2/konva.min.js"></script>
+  <script src="./scripts/map.js"></script>
   <script src="./scripts/constants.js"></script>
   <script src="./scripts/priority_queue.js"></script>
   <script src="./scripts/shortest_path.js"></script>
-  <script src="./scripts/map.js"></script>
   <meta charset="utf-8" />
   <title>SOTN Shortest Path</title>
-   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -21,27 +21,43 @@
   <div id="infobox">
     <h1>SotN Pathfinding</h1>
     <ul>
-      <li><p style="vertical-align:middle; text-align:center;">Select start and end room.</p></li>
+      <li>
+        <p style="vertical-align:middle; text-align:center;">Select start and end room.</p>
+      </li>
     </ul>
     <table>
       <tr>
         <td><img id="SoulOfBat" src="images/SoulOfBat.png" alt="SoulOfBat"></td>
         <td><img id="JewelOfOpen" src="images/JewelOfOpen.png" alt="JewelOfOpen"></td>
         <td><img id="DemonCard" src="images/DemonCard.png" alt="DemonCard"></td>
+        <td><img id="GravityBoots" src="images/GravityBoots.png" alt="GravityBoots"></td>
       </tr>
       <tr>
-        <td><img id="GravityBoots" src="images/GravityBoots.png" alt="GravityBoots"></td>
         <td><img id="LeapStone" src="images/LeapStone.png" alt="LeapStone"></td>
         <td><img id="SoulOfWolf" src="images/SoulOfWolf.png" alt="SoulOfWolf"></td>
-      </tr>
-      <tr>
         <td><img id="FormOfMist" src="images/FormOfMist.png" alt="FormOfMist"></td>
         <td><img id="PowerOfMist" src="images/PowerOfMist.png" alt="PowerOfMist"></td>
       </tr>
     </table>
+    <div>
+      <div class="warp-button" id="CastleEntrance">E</div>
+      <div class="warp-button" id="AbandonedMine">M</div>
+      <div class="warp-button" id="OuterWall">W</div>
+      <div class="warp-button" id="CastleKeep">K</div>
+      <div class="warp-button" id="OlroxsQuarters">O</div>
+      <div class="warp-button" id="ReverseEntrance">e</div>
+      <div class="warp-button" id="ReverseMine">m</div>
+      <div class="warp-button" id="ReverseOuterWall">w</div>
+      <div class="warp-button" id="ReverseKeep">k</div>
+      <div class="warp-button" id="DeathWingsLair">o</div>
+    </div>
     <ul>
-      <li><p id="findButton" style="vertical-align:middle" class="button find"><span>Find </span></p></li>
-      <li><p id="resetButton" style="vertical-align:middle" class="button reset"><span>Reset </span></p></li>
+      <li>
+        <p id="findButton" style="vertical-align:middle" class="button find"><span>Find </span></p>
+      </li>
+      <li>
+        <p id="resetButton" style="vertical-align:middle" class="button reset"><span>Reset </span></p>
+      </li>
     </ul>
     <table>
       <tr>

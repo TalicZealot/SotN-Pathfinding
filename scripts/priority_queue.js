@@ -1,150 +1,131 @@
 (function (self) {
-    function PriorityQueue(compareKey) {
-        this._heap = [];
-        this.compareKey = compareKey;
-    }
+    class PriorityQueue {
+        #priorityKey;
+        #secondaryKey;
+        #uniqueKey;
+        #arity;
+        #map = new Map();
+        #heap = [];
 
-    PriorityQueue.prototype.push = function (value) {
-        this._heap.push(value);
-        minHeapifyUp(this._heap, this._heap.length - 1, this.compareKey);
-    };
-
-    PriorityQueue.prototype.pop = function () {
-        let min = this._heap[0];
-        extractMinElement(this._heap, this._heap.length, this.compareKey);
-        this._heap.pop();
-
-        return min;
-    };
-
-    PriorityQueue.prototype.decreaseKey = function (element, newCost) {
-        let elementIndex = this._heap.findIndex(x => x.x == element.x && x.y == element.y);
-        if (elementIndex < 0) {
-            throw "The passed element is not in the queue!";
+        constructor(compareKey, secondaryKey, uniqueKey, arity = 4) {
+            this.#priorityKey = compareKey;
+            this.#secondaryKey = secondaryKey;
+            this.#uniqueKey = uniqueKey;
+            this.#arity = arity;
         }
-        this._heap[elementIndex][this.compareKey] = newCost;
-        minHeapifyDown(this._heap, elementIndex, this._heap.length - 1, this.compareKey);
-    };
-
-    PriorityQueue.prototype.increaseKey = function (element, newCost) {
-        let elementIndex = this._heap.findIndex(x => x.x == element.x && x.y == element.y);
-        if (elementIndex < 0) {
-            throw "The passed element is not in the queue!";
-        }
-        this._heap[elementIndex][this.compareKey] = newCost;
-        minHeapifyUp(this._heap, elementIndex, this._heap.length - 1, this.compareKey);
-    };
-
-    PriorityQueue.prototype.deque = function () {
-        for (let length = this._heap.length; length > 1; length--) {
-            extractMinElement(this._heap, length);
-        }
-        return this._heap;
-    };
-
-    PriorityQueue.prototype.length = function () {
-        return this._heap.length;
-    };
-
-    PriorityQueue.prototype.top = function () {
-        return this._heap[0];
-    };
-
-    PriorityQueue.prototype.find = function (element) {
-        return this._heap.find(x => x.x == element.x && x.y == element.y);
-    };
-
-    function parent(index) {
-        return (Math.round(index / 2) - 1);
-    }
-
-    function parentExists(index) {
-        return (index >= 0);
-    }
-
-    function leftChild(index) {
-        return (index * 2) + 1;
-    }
-
-    function rightChild(index) {
-        return (index * 2) + 2;
-    }
-
-    function leftChildExists(index, length) {
-        return ((index * 2) + 1) <= length - 1;
-    }
-
-    function rightChildExists(index, length) {
-        return ((index * 2) + 2) <= length - 1;
-    }
-
-    function minChild(array, index, length, compareKey) {
-        if (leftChildExists(index, length) && !rightChildExists(index, length)) {
-            return leftChild(index);
-        } else if (rightChildExists(index, length) && !leftChildExists(index, length)) {
-            return rightChild(index);
-        } else if (compareKey && array[leftChild(index)][compareKey] < array[rightChild(index)][compareKey]) {
-            return leftChild(index);
-        } else if (!compareKey && array[leftChild(index)] < array[rightChild(index)]) {
-            return leftChild(index);
-        } else {
-            return rightChild(index);
-        }
-    }
-
-    function swapNodes(array, indexA, indexB) {
-        if (array[indexA] == array[indexB]) {
-            return array;
-        }
-        let tmp = array[indexA];
-        array[indexA] = array[indexB];
-        array[indexB] = tmp;
-        return array;
-    }
-
-    function minHeapifyDown(array, index, length, compareKey) {
-        if (!leftChildExists(index, length) && !rightChildExists(index, length)) {
-            return array;
-        }
-        var minChildIndex = minChild(array, index, length, compareKey);
-
-        if (compareKey && array[minChildIndex][compareKey] < array[index][compareKey]) {
-            swapNodes(array, minChildIndex, index);
-            minHeapifyDown(array, minChildIndex, length, compareKey);
-        } else if (!compareKey && array[minChildIndex] < array[index]) {
-            swapNodes(array, minChildIndex, index);
-            minHeapifyDown(array, minChildIndex, length);
-        } else {
-            return array;
-        }
-    }
-
-    function minHeapifyUp(array, index, compareKey) {
-        let parentIndex = parent(index);
-
-        if (!parentExists(parentIndex)) {
-            return array;
+        
+        length() {
+            return this.#heap.length;
         }
 
-        if (compareKey && array[parentIndex][compareKey] > array[index][compareKey]) {
-            swapNodes(array, parentIndex, index);
-            minHeapifyUp(array, parentIndex, compareKey);
-        } else if (!compareKey && array[parentIndex] > array[index]) {
-            swapNodes(array, parentIndex, index);
-            minHeapifyUp(array, parentIndex);
-        } else {
-            return array;
+        add(value) {
+            if (this.#map.has(value[this.#uniqueKey])) {
+                let index = this.#map.get(value[this.#uniqueKey]);
+                if (this.#heap[index][this.#priorityKey] > value[this.#priorityKey] ||
+                    (this.#heap[index][this.#priorityKey] == value[this.#priorityKey] && this.#heap[index][this.#secondaryKey] > value[this.#secondaryKey])) {
+                    this.#heap[index] = value;
+                    this.#heapifyUp(index);
+                    return;
+                }
+                return;
+            }
+            this.#heap.push(value);
+            this.#map.set(value[this.#uniqueKey], this.#heap.length - 1); 
+            this.#heapifyUp(this.#heap.length - 1);
+        };
+
+        deque() {
+            this.#swap(0, this.#heap.length - 1)
+            let min = this.#heap.pop();
+            this.#map.delete(min[this.#uniqueKey])
+            this.#heapifyDown(0);
+            return min;
+        }
+
+        #swap(indexA, indexB) {
+            let temp = this.#heap[indexA];
+            this.#heap[indexA] = this.#heap[indexB];
+            this.#heap[indexB] = temp;
+            this.#map.set(this.#heap[indexA][this.#uniqueKey], indexA);
+            this.#map.set(this.#heap[indexB][this.#uniqueKey], indexB);
+        }
+
+        #heapifyDown(index) {
+            if (index == this.#heap.length - 1) {
+                return;
+            }
+            let i = index;
+            while (i < this.#heap.length) {
+                let minChild = this.#minChild(i);
+                if (minChild >= this.#heap.length) {
+                    break;
+                }
+                if (this.#heap[i][this.#priorityKey] > this.#heap[minChild][this.#priorityKey]) {
+                    this.#swap(i, minChild)
+                    i = minChild;
+                } else if (this.#heap[i][this.#priorityKey] == this.#heap[minChild][this.#priorityKey]) {
+                    if (this.#heap[i][this.#secondaryKey] > this.#heap[minChild][this.#secondaryKey]) {
+                        this.#swap(i, minChild)
+                        i = minChild;
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        #heapifyUp(index) {
+            if (index == 0) {
+                return;
+            }
+            let i = index;
+            while (i > 0) {
+                if (i == 0) {
+                    return;
+                }
+                let parentIndex = this.#parentIndex(i);
+                if (this.#heap[i][this.#priorityKey] < this.#heap[parentIndex][this.#priorityKey]) {
+                    this.#swap(i, parentIndex);
+                    i = parentIndex;
+                } else if (this.#heap[i][this.#priorityKey] == this.#heap[parentIndex][this.#priorityKey]) {
+                    if (this.#heap[i][this.#secondaryKey] < this.#heap[parentIndex][this.#secondaryKey]) {
+                        this.#swap(i, parentIndex);
+                        i = parentIndex;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+
+        #parentIndex(index) {
+            return Math.floor((index - 1) / this.#arity);
+        }
+
+        #childNthIndex(index, n) {
+            return (index * this.#arity) + 1 + n;
+        }
+
+        #minChild(index) {
+            let minChild = this.#childNthIndex(index, 0);
+            for (let i = 0; i < this.#arity; i++) {
+                if (this.#childNthIndex(index, i) >= this.#heap.length) {
+                    break;
+                }
+                if (this.#heap[this.#childNthIndex(index, i)][this.#priorityKey] < this.#heap[minChild][this.#priorityKey]) {
+                    minChild = this.#childNthIndex(index, i);
+                }
+            }
+            return minChild;
         }
     }
 
-    function extractMinElement(array, length, compareKey) {
-        swapNodes(array, 0, length - 1);
-        newLength = length - 1;
-        minHeapifyDown(array, 0, newLength, compareKey);
-        return array;
-    }
     if (self) {
-        self.sotnRando = Object.assign(self.sotnRando || {}, {
+        self.pathfinding = Object.assign(self.pathfinding || {}, {
             PriorityQueue: PriorityQueue
         });
     } else {
